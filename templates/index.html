@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Телефонный справочник</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .search-container {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .employees-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .employees-table th {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .employees-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .employees-table tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: #d4edda; color: #155724; }
+        .status-fired { background: #f8d7da; color: #721c24; }
+        .status-external { background: #fff3cd; color: #856404; }
+
+        .building-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .building-colorosnaya { background: #e3f2fd; color: #1565c0; }
+        .building-feofanova { background: #f3e5f5; color: #7b1fa2; }
+        .building-everywhere { background: #e8f5e8; color: #2e7d32; }
+        .building-remote { background: #fff3e0; color: #ef6c00; }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .phone {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .email {
+            color: #3498db;
+            font-size: 12px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .employees-table {
+                font-size: 12px;
+            }
+            
+            .employees-table th,
+            .employees-table td {
+                padding: 8px 10px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📞 Телефонный справочник</h1>
+            <p>Быстрый доступ к контактам сотрудников</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <form action="/search" method="GET">
+                    <input type="text" 
+                           name="q" 
+                           class="search-input" 
+                           placeholder="Поиск по имени, фамилии, должности, телефону или email..."
+                           value="{{.SearchQuery}}"
+                           autofocus>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="employees-table">
+                <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Должность</th>
+                        <th>Контакты</th>
+                        <th>Корпус</th>
+                        <th>Статус</th>
+                        <th>Комментарии</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Employees}}
+                    <tr>
+                        <td>
+                            <strong>{{.LastName}} {{.FirstName}} {{.MiddleName}}</strong>
+                        </td>
+                        <td>{{.Position}}</td>
+                        <td class="contact-info">
+                            <span class="phone">{{.Phone}}</span>
+                            <span class="email">{{.Email}}</span>
+                        </td>
+                        <td>
+                            {{$buildingClass := ""}}
+                            {{if eq .Building "Цветоносная"}}{{$buildingClass = "building-colorosnaya"}}
+                            {{else if eq .Building "Феофанова"}}{{$buildingClass = "building-feofanova"}}
+                            {{else if eq .Building "Везде"}}{{$buildingClass = "building-everywhere"}}
+                            {{else if eq .Building "Удаленный"}}{{$buildingClass = "building-remote"}}
+                            {{end}}
+                            <span class="building-badge {{$buildingClass}}">{{.Building}}</span>
+                        </td>
+                        <td>
+                            {{$statusClass := ""}}
+                            {{if eq .Status "работает"}}{{$statusClass = "status-active"}}
+                            {{else if eq .Status "уволен"}}{{$statusClass = "status-fired"}}
+                            {{else if eq .Status "внешний"}}{{$statusClass = "status-external"}}
+                            {{end}}
+                            <span class="status-badge {{$statusClass}}">{{.Status}}</span>
+                        </td>
+                        <td>{{.Comments}}</td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 40px;">
+                            <p style="color: #7f8c8d; font-size: 16px;">Сотрудники не найдены</p>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">{{len .Employees}}</div>
+                <div class="stat-label">Всего сотрудников</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{.ActiveCount}}</div>
+                <div class="stat-label">Работают</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Автофокус на поле поиска
+        document.querySelector('.search-input')?.focus();
+
+        // Live search
+        const searchInput = document.querySelector('.search-input');
+        let searchTimeout;
+
+        searchInput?.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (e.target.value.length >= 2 || e.target.value.length === 0) {
+                    e.target.closest('form').submit();
+                }
+            }, 500);
+        });
+
+        // Плавная анимация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.employees-table tr');
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'all 0.4s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>
