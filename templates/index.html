@@ -15,7 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
@@ -30,65 +30,72 @@
         .header {
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
             position: relative;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 1.5em;
+            margin-bottom: 8px;
             font-weight: 300;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
         }
 
         .user-panel {
             position: absolute;
-            top: 20px;
-            right: 30px;
+            top: 15px;
+            right: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         .user-info {
             color: white;
-            font-size: 14px;
+            font-size: 0.8em;
         }
 
         .logout-btn {
             background: rgba(255,255,255,0.2);
             color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 15px;
             text-decoration: none;
-            font-size: 12px;
+            font-size: 0.75em;
             transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.3);
+            white-space: nowrap;
         }
 
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-1px);
         }
 
         .search-container {
-            padding: 30px;
+            padding: 20px 15px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
         }
 
         .search-box {
-            max-width: 600px;
+            width: 100%;
             margin: 0 auto;
             position: relative;
         }
 
         .search-input {
             width: 100%;
-            padding: 15px 20px;
-            font-size: 16px;
+            padding: 12px 15px;
+            font-size: 14px;
             border: 2px solid #e9ecef;
-            border-radius: 50px;
+            border-radius: 25px;
             outline: none;
             transition: all 0.3s ease;
         }
@@ -100,43 +107,47 @@
 
         .table-container {
             overflow-x: auto;
-            padding: 20px;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .employees-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            min-width: 600px;
         }
 
         .employees-table th {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
-            padding: 15px;
+            padding: 12px 8px;
             text-align: left;
             font-weight: 600;
             position: sticky;
             top: 0;
+            font-size: 0.85em;
         }
 
         .employees-table td {
-            padding: 12px 15px;
+            padding: 10px 8px;
             border-bottom: 1px solid #e9ecef;
+            font-size: 0.85em;
         }
 
         .employees-table tr:hover {
             background-color: #f8f9fa;
-            transform: translateY(-1px);
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .status-badge {
             padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
             font-weight: 600;
             text-transform: uppercase;
+            display: inline-block;
+            text-align: center;
+            min-width: 70px;
         }
 
         .status-active { background: #d4edda; color: #155724; }
@@ -145,9 +156,12 @@
 
         .building-badge {
             padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
+            border-radius: 10px;
+            font-size: 0.75em;
             font-weight: 500;
+            display: inline-block;
+            text-align: center;
+            min-width: 60px;
         }
 
         .building-colorosnaya { background: #e3f2fd; color: #1565c0; }
@@ -158,77 +172,286 @@
         .contact-info {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 4px;
+            min-width: 120px;
         }
 
-        .phone {
+        .phone-link {
             color: #2c3e50;
             font-weight: 600;
+            text-decoration: none;
+            padding: 6px 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 0.85em;
         }
 
-        .email {
+        .phone-link:hover {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-color: #3498db;
+        }
+
+        .email-link {
             color: #3498db;
-            font-size: 12px;
+            text-decoration: none;
+            padding: 5px 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .email-link:hover {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border-color: #3498db;
+        }
+
+        .contact-icon {
+            font-size: 0.9em;
+            flex-shrink: 0;
         }
 
         .stats {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            padding: 20px;
+            gap: 15px;
+            padding: 15px;
             background: #f8f9fa;
             border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
         }
 
         .stat-item {
             text-align: center;
-            padding: 10px 20px;
+            padding: 8px 15px;
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 100px;
         }
 
         .stat-number {
-            font-size: 24px;
+            font-size: 1.2em;
             font-weight: bold;
             color: #2c3e50;
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 0.75em;
             color: #7f8c8d;
             text-transform: uppercase;
         }
 
+        /* Toast уведомление */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast-icon {
+            font-size: 1.2em;
+        }
+
+        /* Скрытие пустых ячеек */
+        .empty-contact {
+            display: none !important;
+        }
+
+        .empty-comment {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Мобильная адаптация */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
             .container {
-                margin: 10px;
                 border-radius: 10px;
             }
-            
-            .header h1 {
-                font-size: 2em;
+
+            .header {
+                padding: 15px 10px;
             }
-            
+
+            .header h1 {
+                font-size: 1.3em;
+                margin-bottom: 5px;
+            }
+
+            .header p {
+                font-size: 0.8em;
+            }
+
             .user-panel {
                 position: static;
                 justify-content: center;
-                margin-top: 15px;
+                margin-top: 10px;
+                gap: 8px;
             }
-            
+
+            .user-info {
+                font-size: 0.8em;
+            }
+
+            .search-container {
+                padding: 15px 10px;
+            }
+
+            .search-input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .table-container {
+                padding: 10px 5px;
+            }
+
             .employees-table {
                 font-size: 12px;
+                min-width: 500px;
             }
-            
+
             .employees-table th,
             .employees-table td {
-                padding: 8px 10px;
+                padding: 8px 6px;
+                font-size: 0.8em;
             }
-            
+
+            .contact-info {
+                min-width: 100px;
+                gap: 3px;
+            }
+
+            .phone-link,
+            .email-link {
+                padding: 4px 6px;
+                font-size: 0.75em;
+            }
+
+            .status-badge,
+            .building-badge {
+                font-size: 0.7em;
+                min-width: 60px;
+                padding: 3px 6px;
+            }
+
             .stats {
-                flex-direction: column;
+                padding: 10px;
                 gap: 10px;
             }
+
+            .stat-item {
+                padding: 6px 10px;
+                min-width: 80px;
+            }
+
+            .stat-number {
+                font-size: 1.1em;
+            }
+
+            .stat-label {
+                font-size: 0.7em;
+            }
+
+            .toast {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1em;
+            }
+
+            .employees-table {
+                min-width: 450px;
+            }
+
+            .employees-table th,
+            .employees-table td {
+                padding: 6px 4px;
+                font-size: 0.75em;
+            }
+
+            .contact-info {
+                min-width: 90px;
+            }
+
+            .phone-link,
+            .email-link {
+                padding: 3px 5px;
+                font-size: 0.7em;
+            }
+
+            .contact-icon {
+                font-size: 0.8em;
+            }
+
+            .stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .stat-item {
+                width: 100%;
+                max-width: 120px;
+            }
+        }
+
+        /* Адаптация колонки комментариев */
+        @media (max-width: 768px) {
+            .employees-table th:nth-child(6),
+            .employees-table td:nth-child(6) {
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        /* Горизонтальный скролл для очень маленьких экранов */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -258,56 +481,84 @@
         </div>
 
         <div class="table-container">
-            <table class="employees-table">
-                <thead>
-                    <tr>
-                        <th>ФИО</th>
-                        <th>Должность</th>
-                        <th>Контакты</th>
-                        <th>Корпус</th>
-                        <th>Статус</th>
-                        <th>Комментарии</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{range .Employees}}
-                    <tr>
-                        <td>
-                            <strong>{{.LastName}} {{.FirstName}} {{.MiddleName}}</strong>
-                        </td>
-                        <td>{{.Position}}</td>
-                        <td class="contact-info">
-                            <span class="phone">{{.Phone}}</span>
-                            <span class="email">{{.Email}}</span>
-                        </td>
-                        <td>
-                            {{$buildingClass := ""}}
-                            {{if eq .Building "Цветоносная"}}{{$buildingClass = "building-colorosnaya"}}
-                            {{else if eq .Building "Феофанова"}}{{$buildingClass = "building-feofanova"}}
-                            {{else if eq .Building "Везде"}}{{$buildingClass = "building-everywhere"}}
-                            {{else if eq .Building "Удаленный"}}{{$buildingClass = "building-remote"}}
-                            {{end}}
-                            <span class="building-badge {{$buildingClass}}">{{.Building}}</span>
-                        </td>
-                        <td>
-                            {{$statusClass := ""}}
-                            {{if eq .Status "работает"}}{{$statusClass = "status-active"}}
-                            {{else if eq .Status "уволен"}}{{$statusClass = "status-fired"}}
-                            {{else if eq .Status "внешний"}}{{$statusClass = "status-external"}}
-                            {{end}}
-                            <span class="status-badge {{$statusClass}}">{{.Status}}</span>
-                        </td>
-                        <td>{{.Comments}}</td>
-                    </tr>
-                    {{else}}
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 40px;">
-                            <p style="color: #7f8c8d; font-size: 16px;">Сотрудники не найдены</p>
-                        </td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="employees-table">
+                    <thead>
+                        <tr>
+                            <th>ФИО</th>
+                            <th>Должность</th>
+                            <th>Контакты</th>
+                            <th>Корпус</th>
+                            <th>Статус</th>
+                            <th>Комментарии</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Employees}}
+                        <tr>
+                            <td>
+                                <strong>{{.LastName}} {{.FirstName}} {{.MiddleName}}</strong>
+                            </td>
+                            <td>{{.Position}}</td>
+                            <td class="contact-info">
+                                {{if .Phone}}
+                                <a href="tel:{{.Phone}}" class="phone-link">
+                                    <span class="contact-icon">📞</span>
+                                    <span class="contact-text">{{.Phone}}</span>
+                                </a>
+                                {{else}}
+                                <div class="phone-link empty-contact">
+                                    <span class="contact-icon">📞</span>
+                                    <span class="contact-text">не указан</span>
+                                </div>
+                                {{end}}
+                                {{if .Email}}
+                                <a href="javascript:void(0)" class="email-link" data-email="{{.Email}}">
+                                    <span class="contact-icon">✉️</span>
+                                    <span class="contact-text">{{.Email}}</span>
+                                </a>
+                                {{else}}
+                                <div class="email-link empty-contact">
+                                    <span class="contact-icon">✉️</span>
+                                    <span class="contact-text">Email</span>
+                                </div>
+                                {{end}}
+                            </td>
+                            <td>
+                                {{$buildingClass := ""}}
+                                {{if eq .Building "Цветоносная"}}{{$buildingClass = "building-colorosnaya"}}
+                                {{else if eq .Building "Феофанова"}}{{$buildingClass = "building-feofanova"}}
+                                {{else if eq .Building "Везде"}}{{$buildingClass = "building-everywhere"}}
+                                {{else if eq .Building "Удаленный"}}{{$buildingClass = "building-remote"}}
+                                {{end}}
+                                <span class="building-badge {{$buildingClass}}">{{.Building}}</span>
+                            </td>
+                            <td>
+                                {{$statusClass := ""}}
+                                {{if eq .Status "работает"}}{{$statusClass = "status-active"}}
+                                {{else if eq .Status "уволен"}}{{$statusClass = "status-fired"}}
+                                {{else if eq .Status "внешний"}}{{$statusClass = "status-external"}}
+                                {{end}}
+                                <span class="status-badge {{$statusClass}}">{{.Status}}</span>
+                            </td>
+                            <td class="comments-cell">
+                                {{if .Comments}}
+                                    {{.Comments}}
+                                {{else}}
+                                    <span class="empty-comment">—</span>
+                                {{end}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;">
+                                <p style="color: #7f8c8d; font-size: 14px;">Сотрудники не найдены</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="stats">
@@ -319,6 +570,14 @@
                 <div class="stat-number">{{.ActiveCount}}</div>
                 <div class="stat-label">Работают</div>
             </div>
+        </div>
+    </div>
+
+    <!-- Toast уведомление -->
+    <div class="toast" id="copyToast">
+        <div class="toast-content">
+            <span class="toast-icon">✅</span>
+            <span id="toastMessage">Email скопирован в буфер обмена</span>
         </div>
     </div>
 
@@ -339,20 +598,151 @@
             }, 500);
         });
 
-        // Плавная анимация при загрузке
+        // Функция копирования email в буфер обмена
+        function copyToClipboard(text) {
+            // Пытаемся использовать современный API
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            } else {
+                // Старый способ для браузеров без поддержки Clipboard API
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                return new Promise((resolve, reject) => {
+                    document.execCommand('copy') ? resolve() : reject();
+                    textArea.remove();
+                });
+            }
+        }
+
+        // Функция показа toast уведомления
+        function showToast(message) {
+            const toast = document.getElementById('copyToast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Обработчики для email ссылок
+        document.querySelectorAll('.email-link[data-email]').forEach(link => {
+            link.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const email = this.getAttribute('data-email');
+                
+                try {
+                    await copyToClipboard(email);
+                    showToast(`Email "${email}" скопирован в буфер обмена`);
+                    
+                    // Визуальная обратная связь
+                    this.style.backgroundColor = '#d4edda';
+                    this.style.borderColor = '#c3e6cb';
+                    this.style.color = '#155724';
+                    
+                    setTimeout(() => {
+                        this.style.backgroundColor = '';
+                        this.style.borderColor = '';
+                        this.style.color = '';
+                    }, 1000);
+                    
+                } catch (err) {
+                    showToast('Ошибка при копировании email');
+                    console.error('Ошибка копирования:', err);
+                }
+            });
+            
+            // Touch события для мобильных
+            link.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            link.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Обработчики для телефонных ссылок (тап на мобильных)
+        document.querySelectorAll('.phone-link[href^="tel:"]').forEach(link => {
+            link.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+            });
+            
+            link.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Адаптация для мобильных устройств
+        function adaptForMobile() {
+            const isMobile = window.innerWidth <= 768;
+            const contactTexts = document.querySelectorAll('.contact-text');
+            
+            if (isMobile) {
+                // Сокращаем текст контактов на мобильных
+                contactTexts.forEach(text => {
+                    const original = text.textContent;
+                    if (original.length > 12 && original !== 'не указан') {
+                        text.textContent = original.substring(0, 10) + '...';
+                    }
+                });
+            } else {
+                // Восстанавливаем полный текст на десктопе
+                contactTexts.forEach(text => {
+                    const fullText = text.getAttribute('data-full') || text.textContent;
+                    if (fullText.length > 12 && fullText !== 'не указан') {
+                        text.textContent = fullText;
+                    }
+                });
+            }
+        }
+
+        // Сохраняем полный текст контактов при загрузке
         document.addEventListener('DOMContentLoaded', function() {
+            // Сохраняем оригинальные тексты
+            document.querySelectorAll('.contact-text').forEach(text => {
+                if (!text.getAttribute('data-full')) {
+                    text.setAttribute('data-full', text.textContent);
+                }
+            });
+            
+            adaptForMobile();
+            
+            // Плавная анимация при загрузке
             const rows = document.querySelectorAll('.employees-table tr');
             rows.forEach((row, index) => {
                 row.style.opacity = '0';
-                row.style.transform = 'translateY(20px)';
+                row.style.transform = 'translateY(10px)';
                 
                 setTimeout(() => {
-                    row.style.transition = 'all 0.4s ease';
+                    row.style.transition = 'all 0.3s ease';
                     row.style.opacity = '1';
                     row.style.transform = 'translateY(0)';
-                }, index * 50);
+                }, index * 30);
             });
         });
+
+        // Обработчик ресайза окна
+        window.addEventListener('resize', adaptForMobile);
+
+        // Предотвращение масштабирования при двойном тапе
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
