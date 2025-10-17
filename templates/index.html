@@ -32,12 +32,43 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 300;
+        }
+
+        .user-panel {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            color: white;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-1px);
         }
 
         .search-container {
@@ -169,16 +200,6 @@
             text-transform: uppercase;
         }
 
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            margin: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #c3e6cb;
-        }
-
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -187,6 +208,12 @@
             
             .header h1 {
                 font-size: 2em;
+            }
+            
+            .user-panel {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
             }
             
             .employees-table {
@@ -210,6 +237,11 @@
         <div class="header">
             <h1>📞 Телефонный справочник</h1>
             <p>Быстрый доступ к контактам сотрудников</p>
+            
+            <div class="user-panel">
+                <div class="user-info">Добро пожаловать, {{.Username}}</div>
+                <a href="/logout" class="logout-btn">Выйти</a>
+            </div>
         </div>
 
         <div class="search-container">
@@ -280,7 +312,7 @@
 
         <div class="stats">
             <div class="stat-item">
-                <div class="stat-number">{{len .Employees}}</div>
+                <div class="stat-number">{{.TotalCount}}</div>
                 <div class="stat-label">Всего сотрудников</div>
             </div>
             <div class="stat-item">

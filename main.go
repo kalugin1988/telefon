@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -39,6 +41,24 @@ type Config struct {
 	DBTable    string
 	DBSSLMode  string
 	ServerPort string
+	AuthAPI    string
+}
+
+// Структуры для авторизации
+type AuthRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type AuthResponse struct {
+	Success bool     `json:"success"`
+	Groups  []string `json:"groups"`
+}
+
+type UserSession struct {
+	Username string
+	Groups   []string
+	LoggedIn bool
 }
 
 // Глобальные переменные
@@ -48,7 +68,6 @@ var (
 )
 
 func loadConfig() Config {
-	// Загружаем .env файл если существует
 	godotenv.Load()
 
 	return Config{
@@ -60,6 +79,7 @@ func loadConfig() Config {
 		DBTable:    getEnv("DB_TABLE", "employees"),
 		DBSSLMode:  getEnv("DB_SSL_MODE", "disable"),
 		ServerPort: getEnv("SERVER_PORT", "8080"),
+		AuthAPI:    getEnv("AUTH_API", "https://109.it25.su/api/auth?groups=1"),
 	}
 }
 
@@ -70,8 +90,219 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
+// Middleware для проверки авторизации
+func authRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := getSession(c)
+		if !session.LoggedIn {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+// Получение сессии из cookie
+func getSession(c *gin.Context) *UserSession {
+	var session UserSession
+
+	username, err := c.Cookie("username")
+	if err != nil {
+		return &session
+	}
+
+	groupsCookie, err := c.Cookie("usergroups")
+	if err != nil {
+		return &session
+	}
+
+	var groups []string
+	json.Unmarshal([]byte(groupsCookie), &groups)
+
+	session = UserSession{
+		Username: username,
+		Groups:   groups,
+		LoggedIn: true,
+	}
+
+	return &session
+}
+
+// Сохранение сессии в cookie
+func setSession(c *gin.Context, username string, groups []string) {
+	groupsJSON, _ := json.Marshal(groups)
+
+	c.SetCookie("username", username, 3600, "/", "", false, true)
+	c.SetCookie("usergroups", string(groupsJSON), 3600, "/", "", false, true)
+}
+
+// Очистка сессии
+func clearSession(c *gin.Context) {
+	c.SetCookie("username", "", -1, "/", "", false, true)
+	c.SetCookie("usergroups", "", -1, "/", "", false, true)
+}
+
+// Проверка авторизации через API
+func checkAuth(username, password string) (*AuthResponse, error) {
+	authReq := AuthRequest{
+		Username: username,
+		Password: password,
+	}
+
+	jsonData, err := json.Marshal(authReq)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", cfg.AuthAPI, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var authResp AuthResponse
+	err = json.NewDecoder(resp.Body).Decode(&authResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &authResp, nil
+}
+
+// Проверка доступа пользователя к системе
+func hasAccess(groups []string) bool {
+	allowedGroups := []string{"Администраторы домена", "sys.admins", "Администрация"}
+
+	for _, userGroup := range groups {
+		for _, allowedGroup := range allowedGroups {
+			if userGroup == allowedGroup {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Обработчики маршрутов
+func loginHandler(c *gin.Context) {
+	session := getSession(c)
+	if session.LoggedIn {
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
+
+	c.HTML(http.StatusOK, "login.html", gin.H{})
+}
+
+func loginPostHandler(c *gin.Context) {
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	if username == "" || password == "" {
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"Error": "Введите логин и пароль",
+		})
+		return
+	}
+
+	authResp, err := checkAuth(username, password)
+	if err != nil {
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"Error": "Ошибка подключения к серверу авторизации",
+		})
+		return
+	}
+
+	if !authResp.Success {
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"Error": "Проверьте логин или пароль, ошибка авторизации",
+		})
+		return
+	}
+
+	if !hasAccess(authResp.Groups) {
+		c.HTML(http.StatusOK, "login.html", gin.H{
+			"Error": "Обратитесь за доступом к администратору",
+		})
+		return
+	}
+
+	setSession(c, username, authResp.Groups)
+	c.Redirect(http.StatusFound, "/")
+}
+
+func logoutHandler(c *gin.Context) {
+	clearSession(c)
+	c.Redirect(http.StatusFound, "/login")
+}
+
+func indexHandler(c *gin.Context) {
+	session := getSession(c)
+
+	employees, err := getEmployees()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	activeCount := 0
+	for _, emp := range employees {
+		if emp.Status == "работает" {
+			activeCount++
+		}
+	}
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"Employees":   employees,
+		"ActiveCount": activeCount,
+		"Username":    session.Username,
+		"TotalCount":  len(employees),
+	})
+}
+
+func searchHandler(c *gin.Context) {
+	session := getSession(c)
+
+	query := c.Query("q")
+
+	if query == "" {
+		indexHandler(c)
+		return
+	}
+
+	employees, err := searchEmployees(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	activeCount := 0
+	for _, emp := range employees {
+		if emp.Status == "работает" {
+			activeCount++
+		}
+	}
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"Employees":   employees,
+		"SearchQuery": query,
+		"ActiveCount": activeCount,
+		"Username":    session.Username,
+		"TotalCount":  len(employees),
+	})
+}
+
+// Функции работы с БД
 func initDB() error {
-	// Сначала подключаемся к postgres базе для создания БД если нужно
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBSSLMode)
 
@@ -81,7 +312,6 @@ func initDB() error {
 	}
 	defer adminDb.Close()
 
-	// Проверяем существование базы данных
 	var dbExists bool
 	err = adminDb.QueryRow(`
 		SELECT EXISTS(
@@ -92,7 +322,6 @@ func initDB() error {
 		return fmt.Errorf("failed to check database existence: %v", err)
 	}
 
-	// Создаем базу данных если не существует
 	if !dbExists {
 		_, err = adminDb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.DBName))
 		if err != nil {
@@ -101,7 +330,6 @@ func initDB() error {
 		log.Printf("Database '%s' created successfully", cfg.DBName)
 	}
 
-	// Теперь подключаемся к конкретной базе данных
 	connStr = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode)
 
@@ -110,12 +338,10 @@ func initDB() error {
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	// Проверяем соединение
 	if err = db.Ping(); err != nil {
 		return fmt.Errorf("failed to ping database: %v", err)
 	}
 
-	// Создаем таблицу если не существует
 	err = createTableIfNotExists()
 	if err != nil {
 		return fmt.Errorf("failed to create table: %v", err)
@@ -147,7 +373,6 @@ func createTableIfNotExists() error {
 		return err
 	}
 
-	// Проверяем есть ли данные в таблице, если нет - добавляем тестовые
 	var count int
 	err = db.QueryRow(fmt.Sprintf("SELECT COUNT(*) FROM %s", cfg.DBTable)).Scan(&count)
 	if err != nil {
@@ -175,22 +400,18 @@ func insertSampleData() error {
 	`, cfg.DBTable)
 
 	_, err := db.Exec(query,
-		// Первая запись
 		"Иванов", "Иван", "Иванович", "Старший разработчик",
 		"+7-999-123-45-67", "ivanov@company.com", "Цветоносная",
 		"Team lead backend team", "работает",
 
-		// Вторая запись
 		"Петрова", "Мария", "Сергеевна", "Менеджер проектов",
 		"+7-999-123-45-68", "petrova@company.com", "Феофанова",
 		"PMO department", "работает",
 
-		// Третья запись
 		"Сидоров", "Алексей", "Петрович", "Бизнес-аналитик",
 		"+7-999-123-45-69", "sidorov@company.com", "Удаленный",
 		"Внешний консультант", "внешний",
 
-		// Четвертая запись
 		"Козлова", "Ольга", "Владимировна", "Дизайнер",
 		"+7-999-123-45-70", "kozlova@company.com", "Везде",
 		"UI/UX designer", "работает",
@@ -264,56 +485,6 @@ func searchEmployees(query string) ([]Employee, error) {
 	return employees, nil
 }
 
-func indexHandler(c *gin.Context) {
-	employees, err := getEmployees()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Подсчитываем активных сотрудников
-	activeCount := 0
-	for _, emp := range employees {
-		if emp.Status == "работает" {
-			activeCount++
-		}
-	}
-
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Employees":   employees,
-		"ActiveCount": activeCount,
-	})
-}
-
-func searchHandler(c *gin.Context) {
-	query := c.Query("q")
-
-	if query == "" {
-		indexHandler(c)
-		return
-	}
-
-	employees, err := searchEmployees(query)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Подсчитываем активных сотрудников
-	activeCount := 0
-	for _, emp := range employees {
-		if emp.Status == "работает" {
-			activeCount++
-		}
-	}
-
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Employees":   employees,
-		"SearchQuery": query,
-		"ActiveCount": activeCount,
-	})
-}
-
 func apiEmployeesHandler(c *gin.Context) {
 	employees, err := getEmployees()
 	if err != nil {
@@ -356,34 +527,34 @@ func getEmployeeHandler(c *gin.Context) {
 }
 
 func main() {
-	// Загрузка конфигурации
 	cfg = loadConfig()
 
-	// Инициализация базы данных
 	if err := initDB(); err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
-	// Настройка Gin в release mode
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
-	// Добавляем функцию add в шаблоны
 	router.SetFuncMap(template.FuncMap{
 		"add": func(a, b int) int { return a + b },
 	})
 
-	// Загружаем HTML шаблоны из папки templates
 	router.LoadHTMLGlob("templates/*")
-
-	// Статические файлы
 	router.Static("/static", "./static")
 
-	// Маршруты
-	router.GET("/", indexHandler)
-	router.GET("/search", searchHandler)
-	router.GET("/api/employees", apiEmployeesHandler)
-	router.GET("/api/employees/:id", getEmployeeHandler)
+	router.GET("/login", loginHandler)
+	router.POST("/login", loginPostHandler)
+	router.GET("/logout", logoutHandler)
+
+	authorized := router.Group("/")
+	authorized.Use(authRequired())
+	{
+		authorized.GET("/", indexHandler)
+		authorized.GET("/search", searchHandler)
+		authorized.GET("/api/employees", apiEmployeesHandler)
+		authorized.GET("/api/employees/:id", getEmployeeHandler)
+	}
 
 	log.Printf("Server starting on http://localhost:%s", cfg.ServerPort)
 	log.Printf("Database: %s, Table: %s", cfg.DBName, cfg.DBTable)
